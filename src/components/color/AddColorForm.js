@@ -1,5 +1,6 @@
 import React from 'react';
 import { useInput } from '../../hooks/useInput';
+import { useColors } from './ColorProvider';
 
 /**
  * 명령형 코드. ref를 통해 DOM에 직접 접근하기 때문에 제어가 안되는 컴포넌트다.
@@ -72,17 +73,17 @@ export default function AddColorForm({ onNewColor = f => f }) {
 
 /**
  * custom hook을 활용해 재사용되는 로직 합침.
- * @param onNewColor
  * @returns {JSX.Element}
  * @constructor
  */
-export default function AddColorForm({ onNewColor = f => f }) {
+export default function AddColorForm() {
   const [titleProps, resetTitle] = useInput('');
   const [colorProps, resetColor] = useInput('#000000');
+  const { addColor } = useColors();
 
   const submit = e => {
     e.preventDefault();
-    onNewColor(titleProps.value, colorProps.value);
+    addColor(titleProps.value, colorProps.value);
     resetTitle();
     resetColor();
   };
