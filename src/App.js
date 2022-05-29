@@ -3,7 +3,7 @@ import ColorList from './components/color/ColorList';
 import AddColorForm from './components/color/AddColorForm';
 import Checkbox from './components/checkbox/Checkbox';
 import WordCount from './components/word/WordCount';
-import React, { useEffect, useLayoutEffect, useState } from 'react';
+import React, { useEffect, useLayoutEffect, useState, lazy, Suspense } from 'react';
 import { useAnyKeyToRender } from './hooks/useAnyKeyToRender';
 import useMousePosition from './hooks/useMousePosition';
 import useWindowSize from './hooks/useWindowSize';
@@ -14,6 +14,12 @@ import { FixedSizeList } from 'react-window';
 import UserRepositories from './components/repo/UserRepositories';
 import RepositoryReadme from './components/github/RepositoryReadme';
 import SiteLayout from './components/suspense/SiteLayout';
+import ErrorBoundary from './components/suspense/ErrorBoundary';
+import ErrorScreen from './components/suspense/ErrorScreen';
+import Agreement from './components/splitting/Agreement';
+import ClimbingBoxLoader from 'react-spinners/ClimbingBoxLoader';
+// import Main from './components/splitting/Main';
+const Main = lazy(() => import('./components/splitting/Main'));
 
 function List({ data = [], renderItem, renderEmpty }) {
   return !data.length ? (renderEmpty) : (
@@ -31,14 +37,23 @@ const bigList = [...Array(5000)].map(() => ({
   avatar: faker.internet.avatar()
 }));
 
+const BreakThings = () => {
+  throw new Error('We intentionally broke something');
+}
+
 function App() {
+  const [agree, setAgree] = useState(false);
+
+  if (!agree) {
+    return <Agreement onAgree={() => setAgree(true)} />;
+  }
+
   return (
-    <SiteLayout menu={<p>Menu</p>}>
-      <>
-        <h1>Contents</h1>
-        <p>This is the main part of the example layout</p>
-      </>
-    </SiteLayout>
+    <ErrorBoundary fallback={ErrorScreen}>
+      <Suspense fallback={<ClimbingBoxLoader />}>
+        <Main />
+      </Suspense>
+    </ErrorBoundary>
   )
 }
 
